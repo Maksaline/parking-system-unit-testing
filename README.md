@@ -1,86 +1,181 @@
-# Assignment Announcement: Unit Testing — Parking Slot Booking (With Intentional Defects)
+# Parking Slot Booking System - Test Suite
 
-* **Assignment Type:** Individual or a group of maximum 3 students
-* **Deadline:** **Wednesday, October 15, 2025, 11:59 PM**
-* **Submission file:** `<student_id>_unit_test.zip` (structure below)
+A comprehensive JUnit test suite for the Parking Slot Booking System, designed to validate system behavior, identify defects, and document assumptions.
 
----
+## 📋 Overview
 
-## Objective
+This repository contains a complete unit testing implementation for a parking slot booking system with intentional defects. The test suite is built using JUnit 5 and follows software testing best practices to:
 
-You will read the provided Java codebase and design comprehensive **JUnit tests** for each class. Your tests must both validate intended behaviors and reveal defects. You will also submit a short report documenting **why** each test exists, its **verdict**, and any **comments/observations**, plus a **separate defects list** with suggested fixes.
+- Capture actual system behavior through tests
+- Document business rules and edge cases
+- Identify potential defects without modifying source code
+- Provide a foundation for quality assurance
 
-> You will find the documentation in `documentation.md` file and the codebase in the `src/` directory.
+## 🏗️ System Under Test
 
-**Do not modify production code.** Your job is to test it, document behaviors, and recommend fixes.
+The parking system manages:
+- **Vehicles** with different types (Car, Motorcycle, Bus, Bicycle, Microcar, Truck)
+- **Parking Slots** with various types (Compact, Regular, Large, Handicapped)
+- **Bookings** with lifecycle management (Active → Completed/Cancelled)
+- **Wallets** for financial transactions
+- **ParkingSystem** as the central coordinator
 
----
+### Key Business Rules
 
-## What to Submit
+- **Pricing**: `price = hours × 10.0 × vehicleTypeRate × slotTypeMultiplier`
+- **Booking Flow**: Full payment upfront → 80% to slot on completion OR 90% refund on cancellation
+- **Compatibility**: Specific vehicle-slot type restrictions
+- **Availability**: Time-window overlap detection
 
-Submit a **single ZIP** named exactly:
-
-```
-<student_id>_unit_test.zip
-```
-
-**Inside the ZIP:**
-
+## 📦 Test Suite Structure
 ```
 test/
-  VehicleTest.java
-  WalletTest.java
-  ParkingSlotTest.java
-  BookingTest.java
-  ParkingSystemTest.java
-<student_id>_unit_test_report.pdf
+├── BookingTest.java         # 60+ tests for Booking entity
+├── ParkingSlotTest.java     # 25+ tests for slot management
+├── ParkingSystemTest.java   # 15+ tests for system operations
+├── VehicleTest.java         # 4 tests for vehicle initialization
+└── WalletTest.java          # 40+ tests for financial operations
 ```
 
-* Put **only your test files** in `test/`. **Do not include** the source code, class files or build files under test.
-* The PDF report format is described below.
-* **Ensure the ZIP structure is exactly as shown**. As an automated script will check your tests.
+### Test Coverage
+
+| Class | Test Count | Coverage Areas |
+|-------|------------|----------------|
+| **Booking** | 60+ | Constructor validation, status transitions, getter consistency, toString formatting |
+| **ParkingSlot** | 25+ | Initialization, activation/deactivation, compatibility matrix, availability detection |
+| **ParkingSystem** | 15+ | Singleton pattern, booking validation, financial settlements, time calculations |
+| **Vehicle** | 4 | Basic initialization and toString |
+| **Wallet** | 40+ | Fund management, transfers, balance validation, error handling |
+
+## 🧪 Running the Tests
+
+### Prerequisites
+- Java 11 or higher
+- JUnit 5.x
+- Maven or Gradle (optional)
+
+### Using IDE
+1. Clone the repository
+2. Import as a Java project in your IDE (IntelliJ IDEA, Eclipse, VS Code)
+3. Ensure JUnit 5 is in the classpath
+4. Run individual test classes or the entire suite
+
+### Using Maven
+```bash
+mvn clean test
+```
+
+### Using Gradle
+```bash
+gradle test
+```
+
+## 🔍 Test Methodology
+
+### Test Organization
+Tests are organized using JUnit 5's `@Nested` classes for logical grouping:
+```java
+@Nested
+class ConstructorTests { ... }
+
+@Nested
+class StatusTransitionTests { ... }
+
+@Nested
+class FinancialOperationsTests { ... }
+```
+
+### Test Naming Convention
+Tests follow descriptive naming: `test<Action><Condition><ExpectedResult>`
+
+Examples:
+- `testConstructorWithNegativeAmount()`
+- `testCompleteBookingChangesStatusToCompleted()`
+- `testTransferMoreThanBalance()`
+
+## 📊 Key Test Scenarios
+
+### Boundary Testing
+- ✅ Zero and negative amounts
+- ✅ Maximum value handling (Double.MAX_VALUE)
+- ✅ Null parameter handling
+- ✅ Edge time windows (same start/end)
+
+### Business Logic Validation
+- ✅ Vehicle-slot compatibility matrix
+- ✅ Time window overlap detection
+- ✅ Fractional hour truncation (90 minutes → 1 hour)
+- ✅ Financial settlement percentages
+
+### State Transition Testing
+- ✅ Active → Completed → Cancelled
+- ✅ Multiple status changes
+- ✅ Idempotent operations
+
+### Error Handling
+- ✅ Insufficient funds
+- ✅ Invalid time ranges
+- ✅ Incompatible vehicle-slot pairs
+- ✅ Null wallet transfers
+
+## 🐛 Identified Behaviors & Assumptions
+
+### Documented Through Tests
+
+1. **Negative Amount Handling**
+   - Constructor accepts negative amounts but may store as 0.0
+   - Test: `testConstructorWithNegativeAmount()`
+
+2. **Status Transitions**
+   - Completed bookings can be cancelled (and vice versa)
+   - Tests: `testCompleteAfterCancel()`, `testCancelAfterComplete()`
+
+3. **Time Validation**
+   - Constructor allows end time before start time
+   - Booking validation happens at system level
+   - Tests: `testConstructorWithEndTimeBeforeStartTime()`
+
+4. **Fractional Hour Billing**
+   - System truncates fractional hours (not rounds)
+   - Test: `bookingShouldTruncateFractionalHours()`
+
+5. **Self-Transfer Behavior**
+   - Wallet allows transfer to self (no-op)
+   - Test: `testTransferToSelf()`
+
+## 🎯 Testing Philosophy
+
+**As per assignment guidelines:**
+- ❌ Source code is **NOT modified**
+- ✅ Tests capture **actual behavior** (not ideal behavior)
+- ✅ Assumptions are **documented** through test assertions
+- ✅ Potential fixes are **suggested** via test names and comments
+
+## 📈 Test Statistics
+
+- **Total Test Methods**: 140+
+- **Test Assertions**: 300+
+- **Nested Test Classes**: 25+
+- **Exception Testing**: 20+ scenarios
+
+## 🤝 Contributing
+
+This test suite was developed as part of a Software Testing & QA assignment. The focus is on:
+- Comprehensive coverage
+- Clear documentation
+- Behavioral validation
+- Edge case identification
+
+## 📄 License
+
+This test suite is provided for educational purposes as part of a software testing assignment.
+
+## 🔗 References
+
+- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- Testing best practices for parking management systems
+- Domain-driven design testing patterns
 
 ---
 
-## Report Requirements (`<student_id>_unit_test_report.pdf`)
-
-### A) Test Case List (table)
-
-For every test you wrote, include a row with the following columns:
-
-* **Test ID**.
-* **Class.Method** under test.
-* **Why this test?** should state the specific rule/edge case.
-* **Verdict** is the test outcome against the current code.
-* **Comments/Observations** on behavior, exceptions, edge cases, etc.
-
-### B) Defects List (separate section)
-
-List **each discovered defect** with a suggested fix:
-* **Defect ID**.
-* **Class.Method** where the defect was found.
-* **Description** of the defect.
-* **Suggested Fix** (brief, no code needed).
-
-
-### Running Tests
-
-* Your tests should compile & run in a standard JUnit 5 setup.
-* If you use Maven/Gradle locally, keep config simple; **do not** include build files in the ZIP.
-
----
-
-## Academic Integrity
-
-* **Any form of unfair means** (plagiarism, sharing code, AI-generated tests or collusion, etc.) is strictly prohibited.
-* **Penalty:** score **0** on this assignment **and** deduction from other assessments.
-
----
-
-## Reminders
-
-* **Design tests to be order-independent** and resilient to the system’s static global state.
-* Document current behavior even when you believe it’s wrong; reflect that in verdict and defects sections.
-
----
-Best of luck!
+**Note**: This is a testing-focused repository. The system under test intentionally contains defects for educational purposes. Tests document behavior as-is, not as-should-be.
