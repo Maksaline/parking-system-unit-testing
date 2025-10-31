@@ -1,6 +1,6 @@
 package test;
 
-import src.*;
+import code.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
@@ -301,28 +301,28 @@ public class BookingTest {
         void testStatusTransitionActiveToCompleted() {
             assertEquals(BookingStatus.ACTIVE, booking.getBookingStatus(), "Should start ACTIVE");
             booking.completeBooking();
-            assertEquals(BookingStatus.COMPLETED, booking.getBookingStatus(), "Should become COMPLETED");
+            assertSame(BookingStatus.COMPLETED, booking.getBookingStatus(), "Should become COMPLETED");
         }
 
         @Test
         void testStatusTransitionActiveToCancelled() {
             assertEquals(BookingStatus.ACTIVE, booking.getBookingStatus(), "Should start ACTIVE");
             booking.cancelBooking();
-            assertEquals(BookingStatus.CANCELLED, booking.getBookingStatus(), "Should become CANCELLED");
+            assertSame(BookingStatus.CANCELLED, booking.getBookingStatus(), "Should become CANCELLED");
         }
 
         @Test
         void testStatusTransitionCompletedToCancelled() {
             booking.completeBooking();
             booking.cancelBooking();
-            assertEquals(BookingStatus.CANCELLED, booking.getBookingStatus(), "Should transition to CANCELLED");
+            assertSame(BookingStatus.COMPLETED, booking.getBookingStatus(), "Should not transition to CANCELLED");
         }
 
         @Test
         void testStatusTransitionCancelledToCompleted() {
             booking.cancelBooking();
             booking.completeBooking();
-            assertEquals(BookingStatus.COMPLETED, booking.getBookingStatus(), "Should transition to COMPLETED");
+            assertSame(BookingStatus.CANCELLED, booking.getBookingStatus(), "Should not transition to COMPLETED");
         }
     }
 }
